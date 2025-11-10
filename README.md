@@ -1,50 +1,41 @@
-# 🐶 Dogs API Slideshow
+🐶 Dogs API Slideshow — Project Summary
 
-This project displays random images of various dog breeds using the [Dog CEO API](https://dog.ceo/dog-api/).  
-It was built following Brad Schiff’s tutorial **“Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await”**,  
-and enhanced to meet Lewis University’s **“Lions and Tigers and Bears, Oh My!”** assignment requirements.
+This project is based on Brad Schiff’s “Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await”
+tutorial.
+It uses the Dog CEO API
+to fetch and display random dog images in a simple interactive slideshow built with HTML, CSS, and vanilla JavaScript.
 
----
+🚀 Features
 
-## 🚀 Live Application
+Fetches random dog images asynchronously using Fetch API + async/await
 
-**Azure Static Web App:**  
-👉 [https://YOUR-AZURE-URL.azurestaticapps.net](https://YOUR-AZURE-URL.azurestaticapps.net)
+Interactive slideshow with Prev / Next / Auto / Stop controls
 
-**GitHub Repository:**  
-👉 [https://github.com/LoneWolf8388/dogs-api-slideshow](https://github.com/LoneWolf8388/dogs-api-slideshow)
+Responsive layout for desktop and mobile
 
----
+Uses semantic HTML elements and accessible alt text for each image
 
-## 🛠️ Tech Stack
+Hosted as a Static Web App on Microsoft Azure with CI/CD from GitHub Actions
 
-- **HTML5** for structure
-- **CSS3** for styling and responsiveness
-- **JavaScript (ES6)** for logic and async API handling
-- **Fetch API + Async/Await** for asynchronous requests
-- **Azure Static Web Apps** for cloud hosting
-- **GitHub Actions CI/CD** for automatic deployment
+🧹 Coding Standards
 
----
+Formatting: Automatically formatted with Prettier (Format on Save)
 
-## 🧩 Features
+Semantics & Accessibility: Uses <main>, <section>, <button>, and descriptive alt text
 
-- Fetches random dog images from a public API
-- Async/await + Promises for clean asynchronous code
-- Simple, responsive layout using semantic HTML
-- Deployed live with automated GitHub → Azure pipeline
+Security: No API keys or secrets stored in the repository
 
----
+Quality: Descriptive variable and function names, no unused code, no console.log spam
 
-## 🙏 Credits
+(Optional) Quick lint check with ESLint before submission
 
-Tutorial and core logic based on Brad Schiff’s  
-[Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await](https://www.youtube.com/watch?v=AVmGmLFcukM)  
-© Brad Schiff – used for educational purposes under open license terms.
+📘 License & Attribution
 
----
+This project was adapted from Brad Schiff’s “Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await” tutorial.
+Full credit and original authorship belong to Brad Schiff.
+This version was developed for educational purposes as part of the Lewis University Software Engineering course.
 
-## 📄 License
+🌐 Live Application
 
-See the [LICENSE](./LICENSE) file for details.  
-Brad Schiff retains original content rights for tutorial materials.
+Azure Static Web App: [(https://github.com/LoneWolf8388/dogs-api-slideshow)]
+GitHub Repository: https://github.com/LoneWolf8388/dogs-api-slideshow
