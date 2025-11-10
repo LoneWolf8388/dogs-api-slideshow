@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dogs • Fetch + Async/Await</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Dog Breed Slideshow</h1>
+
+      <section id="slideshow" class="slideshow">
+        <img id="slide-img" alt="Random dog" />
+        <div class="caption">
+          <span id="breed"></span>
+        </div>
+      </section>
+
+      <div class="controls">
+        <button id="prev">Prev</button>
+        <button id="next">Next</button>
+        <button id="auto">Auto Play</button>
+        <button id="stop">Stop</button>
+      </div>
+
+      <form id="count-form" class="count-form">
+        <label
+          >How many images?
+          <input id="count" type="number" min="1" max="50" value="10" />
+        </label>
+        <button type="submit">Reload</button>
+      </form>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
