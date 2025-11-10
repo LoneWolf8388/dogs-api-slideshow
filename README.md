@@ -1,25 +1,50 @@
-# Dogs – JavaScript & An API (Fetch, Promises & Async/Await)
+# 🐶 Dogs API Slideshow
 
-Live site: https://<your-azure-site>.azurestaticapps.net
+This project displays random images of various dog breeds using the [Dog CEO API](https://dog.ceo/dog-api/).  
+It was built following Brad Schiff’s tutorial **“Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await”**,  
+and enhanced to meet Lewis University’s **“Lions and Tigers and Bears, Oh My!”** assignment requirements.
 
-## Overview
+---
 
-A simple slideshow that fetches random dog images from a public API using `fetch`, Promises, and `async/await`.
+## 🚀 Live Application
 
-## How to run locally
+**Azure Static Web App:**  
+👉 [https://YOUR-AZURE-URL.azurestaticapps.net](https://YOUR-AZURE-URL.azurestaticapps.net)
 
-1. Clone the repo
-2. Open `index.html` in a browser (no build needed)
+**GitHub Repository:**  
+👉 [https://github.com/LoneWolf8388/dogs-api-slideshow](https://github.com/LoneWolf8388/dogs-api-slideshow)
 
-## Acknowledgements / Credit
+---
 
-This implementation was created by following Brad Schiff’s tutorial: _Dogs, JavaScript & An API – Fetch, Promises & Async Await_. All educational credit to Brad Schiff.
+## 🛠️ Tech Stack
 
-## Tech
+- **HTML5** for structure
+- **CSS3** for styling and responsiveness
+- **JavaScript (ES6)** for logic and async API handling
+- **Fetch API + Async/Await** for asynchronous requests
+- **Azure Static Web Apps** for cloud hosting
+- **GitHub Actions CI/CD** for automatic deployment
 
-- HTML, CSS, JavaScript
-- Fetch API, Promises, async/await
+---
 
-## License
+## 🧩 Features
 
-See [LICENSE](./LICENSE).
+- Fetches random dog images from a public API
+- Async/await + Promises for clean asynchronous code
+- Simple, responsive layout using semantic HTML
+- Deployed live with automated GitHub → Azure pipeline
+
+---
+
+## 🙏 Credits
+
+Tutorial and core logic based on Brad Schiff’s  
+[Dogs, JavaScript & An API 🐶 Fetch, Promises & Async Await](https://www.youtube.com/watch?v=AVmGmLFcukM)  
+© Brad Schiff – used for educational purposes under open license terms.
+
+---
+
+## 📄 License
+
+See the [LICENSE](./LICENSE) file for details.  
+Brad Schiff retains original content rights for tutorial materials.
