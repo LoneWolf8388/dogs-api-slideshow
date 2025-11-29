@@ -8,14 +8,13 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// 🔐 paste the config from your Firebase web app here
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyBf1gWghsjHcnZRMVoZDlwrRTDG_74-V5wM",
   authDomain: "dogs-api-slideshow-auth.firebaseapp.com",
   projectId: "dogs-api-slideshow-auth",
-  storageBucket: "dogs-api-slideshow-auth.appspot.com",
-  messagingSenderId: "XXXXXXXXXXXX",
-  appId: "1:XXXXXXXXXXXX:web:YYYYYYYYYYYY",
+  storageBucket: "dogs-api-slideshow-auth.firebasestorage.app",
+  messagingSenderId: "439273048892",
+  appId: "1:439273048892:web:c36882f1736752f48eec39",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -51,7 +50,6 @@ signOutBtn.addEventListener("click", async () => {
 // React to auth state
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // logged in
     appWrapper.style.display = "block";
     signInBtn.style.display = "none";
     signOutBtn.style.display = "inline-block";
@@ -59,7 +57,6 @@ onAuthStateChanged(auth, (user) => {
     const name = user.displayName || user.email || "User";
     userInfo.textContent = `Logged in as ${name}`;
   } else {
-    // logged out
     appWrapper.style.display = "none";
     signInBtn.style.display = "inline-block";
     signOutBtn.style.display = "none";
