@@ -1,6 +1,6 @@
 // auth.js
 
-// Load Firebase (v10 modular SDK) from the CDN
+// Load Firebase SDKs from the CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -10,14 +10,14 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// 🔐 Your Firebase project config (from Project Settings → Web app)
+// 🔐 Your actual Firebase config (copied from Project settings → Web app → Config)
 const firebaseConfig = {
-  apiKey: "AIzaSyBf1gWghsjHcnZRMVoZDlRwRTDG_74-V5vM",
+  apiKey: "AIzaSyBf1gWjshjHcnZRMVoZDlWRTDG_74-V5vM",
   authDomain: "dogs-api-slideshow-auth.firebaseapp.com",
   projectId: "dogs-api-slideshow-auth",
   storageBucket: "dogs-api-slideshow-auth.firebasestorage.app",
-  messagingSenderId: "439273048892",
-  appId: "1:439273048892:web:c36882f173675f248eec39",
+  messagingSenderId: "439273084892",
+  appId: "1:439273084892:web:c36882f1736752f48eec39",
 };
 
 // Initialize Firebase + Auth
@@ -25,13 +25,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Grab DOM nodes
+// DOM elements
 const signInBtn = document.getElementById("sign-in-btn");
 const signOutBtn = document.getElementById("sign-out-btn");
 const userInfo = document.getElementById("user-info");
 const appWrapper = document.getElementById("app-wrapper");
 
-// Sign in with Google
+// Google sign-in
 signInBtn.addEventListener("click", async () => {
   try {
     await signInWithPopup(auth, provider);
@@ -41,7 +41,7 @@ signInBtn.addEventListener("click", async () => {
   }
 });
 
-// Sign out
+// Sign-out
 signOutBtn.addEventListener("click", async () => {
   try {
     await signOut(auth);
@@ -51,15 +51,13 @@ signOutBtn.addEventListener("click", async () => {
   }
 });
 
-// Listen for auth state changes
+// Watch auth state changes
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // Logged in
     appWrapper.style.display = "block";
-    signInBtn.style.display = "inline-block";
-    signInBtn.textContent = "Signed in ✅"; // optional, or hide if you want
-    signInBtn.disabled = true;
-
+    signInBtn.style.display = "inline-block";   // you can hide it if you want
+    signInBtn.disabled = true;                  // or disable while logged in
     signOutBtn.style.display = "inline-block";
 
     const name = user.displayName || user.email || "User";
@@ -68,9 +66,7 @@ onAuthStateChanged(auth, (user) => {
     // Logged out
     appWrapper.style.display = "none";
     signInBtn.style.display = "inline-block";
-    signInBtn.textContent = "Sign in with Google";
     signInBtn.disabled = false;
-
     signOutBtn.style.display = "none";
     userInfo.textContent = "";
   }
