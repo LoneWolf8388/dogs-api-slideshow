@@ -1,4 +1,6 @@
 // auth.js
+
+// Load Firebase (v10 modular SDK) from the CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -8,6 +10,7 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+// 🔐 Your Firebase project config (from Project Settings → Web app)
 const firebaseConfig = {
   apiKey: "AIzaSyBf1gWghsjHcnZRMVoZDlRwRTDG_74-V5vM",
   authDomain: "dogs-api-slideshow-auth.firebaseapp.com",
@@ -17,6 +20,7 @@ const firebaseConfig = {
   appId: "1:439273048892:web:c36882f173675f248eec39",
 };
 
+// Initialize Firebase + Auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -27,7 +31,7 @@ const signOutBtn = document.getElementById("sign-out-btn");
 const userInfo = document.getElementById("user-info");
 const appWrapper = document.getElementById("app-wrapper");
 
-// Sign in
+// Sign in with Google
 signInBtn.addEventListener("click", async () => {
   try {
     await signInWithPopup(auth, provider);
@@ -47,18 +51,26 @@ signOutBtn.addEventListener("click", async () => {
   }
 });
 
-// React to auth state
+// Listen for auth state changes
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    // Logged in
     appWrapper.style.display = "block";
-    signInBtn.style.display = "none";
+    signInBtn.style.display = "inline-block";
+    signInBtn.textContent = "Signed in ✅"; // optional, or hide if you want
+    signInBtn.disabled = true;
+
     signOutBtn.style.display = "inline-block";
 
     const name = user.displayName || user.email || "User";
     userInfo.textContent = `Logged in as ${name}`;
   } else {
+    // Logged out
     appWrapper.style.display = "none";
     signInBtn.style.display = "inline-block";
+    signInBtn.textContent = "Sign in with Google";
+    signInBtn.disabled = false;
+
     signOutBtn.style.display = "none";
     userInfo.textContent = "";
   }
