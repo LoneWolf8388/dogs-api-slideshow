@@ -9,12 +9,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBf1gWghsjHcnZRMVoZDlwrRTDG_74-V5wM",
+  apiKey: "AIzaSyBf1gWghsjHcnZRMVoZDlRwRTDG_74-V5vM",
   authDomain: "dogs-api-slideshow-auth.firebaseapp.com",
   projectId: "dogs-api-slideshow-auth",
   storageBucket: "dogs-api-slideshow-auth.firebasestorage.app",
   messagingSenderId: "439273048892",
-  appId: "1:439273048892:web:c36882f1736752f48eec39",
+  appId: "1:439273048892:web:c36882f173675f248eec39",
 };
 
 const app = initializeApp(firebaseConfig);
