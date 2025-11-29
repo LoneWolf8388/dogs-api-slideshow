@@ -7,32 +7,62 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="container">
-      <h1>Dog Breed Slideshow</h1>
-
-      <section id="slideshow" class="slideshow">
-        <img id="slide-img" alt="Random dog" />
-        <div class="caption">
-          <span id="breed"></span>
-        </div>
-      </section>
-
-      <div class="controls">
-        <button id="prev">Prev</button>
-        <button id="next">Next</button>
-        <button id="auto">Auto Play</button>
-        <button id="stop">Stop</button>
+    <!-- Auth header -->
+    <header
+      style="
+        max-width: 960px;
+        margin: 1.5rem auto 1rem auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+      "
+    >
+      <div>
+        <button id="sign-in-btn">Sign in with Google</button>
+        <button id="sign-out-btn" style="display: none">Sign out</button>
       </div>
+      <div
+        id="user-info"
+        style="font-size: 0.9rem; color: #555; text-align: right"
+      ></div>
+    </header>
 
-      <form id="count-form" class="count-form">
-        <label
-          >How many images?
-          <input id="count" type="number" min="1" max="50" value="10" />
-        </label>
-        <button type="submit">Reload</button>
-      </form>
-    </main>
+    <!-- Only show the slideshow when logged in -->
+    <div id="app-wrapper" style="display: none">
+      <main class="container">
+        <h1>Dog Breed Slideshow</h1>
 
+        <section id="slideshow" class="slideshow">
+          <img id="slide-img" alt="Random dog" />
+          <div class="caption">
+            <span id="breed"></span>
+          </div>
+        </section>
+
+        <div class="controls">
+          <button id="prev">Prev</button>
+          <button id="next">Next</button>
+          <button id="auto">Auto Play</button>
+          <button id="stop">Stop</button>
+        </div>
+
+        <form id="count-form" class="count-form">
+          <label>
+            How many images?
+            <input id="count" type="number" min="1" max="50" value="10" />
+          </label>
+          <button type="submit">Reload</button>
+        </form>
+      </main>
+    </div>
+
+    <!-- Firebase auth logic -->
+    <script type="module" src="auth.js"></script>
+
+    <!-- Existing slideshow logic -->
     <script src="app.js"></script>
   </body>
 </html>
