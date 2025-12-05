@@ -7,62 +7,203 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Auth header -->
-    <header
-      style="
-        max-width: 960px;
-        margin: 1.5rem auto 1rem auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-          sans-serif;
-      "
-    >
-      <div>
-        <button id="sign-in-btn">Sign in with Google</button>
-        <button id="sign-out-btn" style="display: none">Sign out</button>
-      </div>
-      <div
-        id="user-info"
-        style="font-size: 0.9rem; color: #555; text-align: right"
-      ></div>
-    </header>
+    <!-- Auth UI -->
+    <button id="google-signin">Sign in with Google</button>
+    <button id="google-signout" style="display:none;">Sign out</button>
+    <div id="user-info"></div>
 
-    <!-- Only show the slideshow when logged in -->
-    <div id="app-wrapper" style="display: none">
-      <main class="container">
-        <h1>Dog Breed Slideshow</h1>
+    <!-- App wrapper: hidden until user logs in -->
+    <main id="app-wrapper" class="container" style="display:none;">
+      <h1>Dog Breed Slideshow</h1>
 
-        <section id="slideshow" class="slideshow">
-          <img id="slide-img" alt="Random dog" />
-          <div class="caption">
-            <span id="breed"></span>
-          </div>
-        </section>
-
-        <div class="controls">
-          <button id="prev">Prev</button>
-          <button id="next">Next</button>
-          <button id="auto">Auto Play</button>
-          <button id="stop">Stop</button>
+      <section id="slideshow" class="slideshow">
+        <img id="slide-img" alt="Random dog" />
+        <div class="caption">
+          <span id="breed"></span>
         </div>
+      </section>
 
-        <form id="count-form" class="count-form">
-          <label>
-            How many images?
-            <input id="count" type="number" min="1" max="50" value="10" />
-          </label>
-          <button type="submit">Reload</button>
-        </form>
-      </main>
-    </div>
+      <div class="controls">
+        <button id="prev">Prev</button>
+        <button id="next">Next</button>
+        <button id="auto">Auto Play</button>
+        <button id="stop">Stop</button>
+      </div>
 
-    <!-- Firebase auth logic -->
-    <script type="module" src="auth.js"></script>
+      <form id="count-form" class="count-form">
+        <label>
+          How many images?
+          <input id="count" type="number" min="1" max="50" value="10" />
+        </label>
+        <button type="submit">Reload</button>
+      </form>
 
-    <!-- Existing slideshow logic -->
+      <!-- Login activity section for Requirement 6 -->
+      <section id="login-log" class="login-log" style="display:none; margin-top:2rem;">
+        <h2>Recent Login Activity</h2>
+        <ul id="login-list"></ul>
+      </section>
+    </main>
+
+    <!-- Firebase Auth + Firestore INLINE (no external auth.js, no Cloud Functions) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      /* 🔸 OLD Cloud Functions imports (NOT USED on free plan)
+      import {
+        getFunctions,
+        httpsCallable,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+      */
+
+      /* ✅ Firestore imports for Requirement 6 (NoSQL login logging) */
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        orderBy,
+        limit,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBf1gWgHsjHcnZRMVoZDIwRTDG_74-V5vM",
+        authDomain: "dogs-api-slideshow-auth.firebaseapp.com",
+        projectId: "dogs-api-slideshow-auth",
+        storageBucket: "dogs-api-slideshow-auth.firebasestorage.app",
+        messagingSenderId: "439273048892",
+        appId: "1:439273048892:web:c36882f173675f248eec39",
+      };
+
+      console.log("INLINE FIREBASE API KEY:", firebaseConfig.apiKey);
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+
+      /* 🔸 OLD Cloud Functions setup (DISABLED)
+      const functions = getFunctions(app);
+      const logLogin = httpsCallable(functions, "logLogin");
+      */
+
+      /* ✅ Firestore DB (NoSQL) */
+      const db = getFirestore(app);
+
+      const signInBtn = document.getElementById("google-signin");
+      const signOutBtn = document.getElementById("google-signout");
+      const userInfo = document.getElementById("user-info");
+      const appWrapper = document.getElementById("app-wrapper");
+
+      const loginLogSection = document.getElementById("login-log");
+      const loginList = document.getElementById("login-list");
+
+      // ✅ Load recent logins directly from Firestore
+      async function loadLoginLog() {
+        loginList.innerHTML = "<li>Loading login activity…</li>";
+
+        try {
+          const q = query(
+            collection(db, "logins"),
+            orderBy("loginAt", "desc"),
+            limit(10)
+          );
+
+          const snapshot = await getDocs(q);
+
+          if (snapshot.empty) {
+            loginList.innerHTML = "<li>No login activity recorded yet.</li>";
+          } else {
+            loginList.innerHTML = "";
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const li = document.createElement("li");
+
+              let when = "unknown time";
+              if (data.loginAt && data.loginAt.toDate) {
+                when = data.loginAt.toDate().toLocaleString();
+              }
+
+              const email = data.email || "Unknown user";
+              li.textContent = `${email} — ${when}`;
+              loginList.appendChild(li);
+            });
+          }
+
+          loginLogSection.style.display = "block";
+        } catch (err) {
+          console.error("Error loading login log:", err);
+          loginList.innerHTML =
+            "<li>Could not load login activity. Check console for details.</li>";
+        }
+      }
+
+      // ✅ Sign in with Google + write login to Firestore
+      signInBtn.addEventListener("click", async () => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+
+          // Write login record to Firestore (Requirement 6)
+          try {
+            await addDoc(collection(db, "logins"), {
+              uid: user.uid,
+              email: user.email || null,
+              displayName: user.displayName || null,
+              loginAt: serverTimestamp(),
+            });
+          } catch (logErr) {
+            console.error("Error logging login to Firestore:", logErr);
+          }
+
+          // Refresh login history
+          await loadLoginLog();
+        } catch (err) {
+          console.error("Sign-in error:", err);
+          alert(err.message);
+        }
+      });
+
+      signOutBtn.addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.error("Sign-out error:", err);
+          alert(err.message);
+        }
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          signInBtn.style.display = "none";
+          signOutBtn.style.display = "inline-block";
+          userInfo.textContent = `Signed in as ${user.displayName} (${user.email})`;
+          appWrapper.style.display = "block";
+
+          // Show login history when signed in
+          await loadLoginLog();
+        } else {
+          signInBtn.style.display = "inline-block";
+          signOutBtn.style.display = "none";
+          userInfo.textContent = "Not signed in";
+          appWrapper.style.display = "none";
+
+          // Hide login history when signed out
+          loginLogSection.style.display = "none";
+          loginList.innerHTML = "";
+        }
+      });
+    </script>
+
+    <!-- Your slideshow logic (unchanged) -->
     <script src="app.js"></script>
   </body>
 </html>
