@@ -39,9 +39,43 @@
       </form>
 
       <!-- Login activity section for Requirement 6 -->
-      <section id="login-log" class="login-log" style="display:none; margin-top:2rem;">
+      <section
+        id="login-log"
+        class="login-log"
+        style="display:none; margin-top:2rem;"
+      >
         <h2>Recent Login Activity</h2>
         <ul id="login-list"></ul>
+      </section>
+
+      <!-- ✅ NEW: File upload / list / download for Requirement 7 -->
+      <section
+        id="file-section"
+        class="file-section"
+        style="display:none; margin-top:2rem;"
+      >
+        <h2>File Upload &amp; Sharing</h2>
+
+        <!-- Upload form -->
+        <form id="file-upload-form">
+          <p>
+            Upload a small <strong>PNG</strong> image or <strong>MP4</strong>
+            video. (Keep files under ~800 KB so they fit comfortably in
+            Firestore.)
+          </p>
+          <input
+            type="file"
+            id="file-input"
+            accept="image/png,video/mp4"
+            required
+          />
+          <button type="submit">Upload file</button>
+          <div id="file-upload-status" style="margin-top:0.5rem;"></div>
+        </form>
+
+        <!-- List of uploaded files -->
+        <h3 style="margin-top:1.5rem;">Shared Files</h3>
+        <ul id="file-list"></ul>
       </section>
     </main>
 
@@ -56,14 +90,7 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-      /* 🔸 OLD Cloud Functions imports (NOT USED on free plan)
-      import {
-        getFunctions,
-        httpsCallable,
-      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
-      */
-
-      /* ✅ Firestore imports for Requirement 6 (NoSQL login logging) */
+      /* Firestore imports for Requirement 6 + 7 */
       import {
         getFirestore,
         collection,
@@ -89,13 +116,6 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const provider = new GoogleAuthProvider();
-
-      /* 🔸 OLD Cloud Functions setup (DISABLED)
-      const functions = getFunctions(app);
-      const logLogin = httpsCallable(functions, "logLogin");
-      */
-
-      /* ✅ Firestore DB (NoSQL) */
       const db = getFirestore(app);
 
       const signInBtn = document.getElementById("google-signin");
@@ -106,7 +126,16 @@
       const loginLogSection = document.getElementById("login-log");
       const loginList = document.getElementById("login-list");
 
-      // ✅ Load recent logins directly from Firestore
+      /* === NEW DOM references for Requirement 7 === */
+      const fileSection = document.getElementById("file-section");
+      const fileUploadForm = document.getElementById("file-upload-form");
+      const fileInput = document.getElementById("file-input");
+      const fileUploadStatus = document.getElementById("file-upload-status");
+      const fileList = document.getElementById("file-list");
+
+      // ==========================
+      // Requirement 6: Login log
+      // ==========================
       async function loadLoginLog() {
         loginList.innerHTML = "<li>Loading login activity…</li>";
 
@@ -146,13 +175,143 @@
         }
       }
 
-      // ✅ Sign in with Google + write login to Firestore
+      // ==========================
+      // Requirement 7: Files
+      // ==========================
+
+      // Helper to load all files and render them
+      async function loadFiles() {
+        fileList.innerHTML = "<li>Loading files…</li>";
+
+        try {
+          const q = query(
+            collection(db, "files"),
+            orderBy("uploadedAt", "desc"),
+            limit(25)
+          );
+          const snapshot = await getDocs(q);
+
+          if (snapshot.empty) {
+            fileList.innerHTML = "<li>No files uploaded yet.</li>";
+            return;
+          }
+
+          fileList.innerHTML = "";
+
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const li = document.createElement("li");
+
+            const name = data.name || "unnamed";
+            const type = data.contentType || "unknown";
+            const size = data.sizeBytes
+              ? ` (${Math.round(data.sizeBytes / 1024)} KB)`
+              : "";
+            let when = "";
+            if (data.uploadedAt && data.uploadedAt.toDate) {
+              when = " — " + data.uploadedAt.toDate().toLocaleString();
+            }
+            const by = data.uploadedBy ? ` — by ${data.uploadedBy}` : "";
+
+            // Download link using stored dataUrl
+            const downloadLink = document.createElement("a");
+            downloadLink.textContent = "Download";
+            downloadLink.href = data.dataUrl;
+            downloadLink.download = name;
+            downloadLink.style.marginLeft = "0.75rem";
+
+            li.textContent = `${name} [${type}]${size}${when}${by}`;
+            li.appendChild(downloadLink);
+
+            fileList.appendChild(li);
+          });
+        } catch (err) {
+          console.error("Error loading files:", err);
+          fileList.innerHTML =
+            "<li>Could not load files. Please try again later.</li>";
+        }
+      }
+
+      // Handle upload form submit
+      if (fileUploadForm) {
+        fileUploadForm.addEventListener("submit", async (evt) => {
+          evt.preventDefault();
+
+          const file = fileInput.files[0];
+          if (!file) {
+            fileUploadStatus.textContent = "Please choose a file first.";
+            return;
+          }
+
+          // Only PNG + MP4 allowed
+          if (
+            file.type !== "image/png" &&
+            file.type !== "video/mp4"
+          ) {
+            fileUploadStatus.textContent =
+              "Only PNG images and MP4 videos are allowed.";
+            return;
+          }
+
+          // Guardrail for Firestore doc size (1 MB max)
+          const maxBytes = 800 * 1024; // ~800 KB
+          if (file.size > maxBytes) {
+            fileUploadStatus.textContent =
+              "File is too large. Please keep it under ~800 KB for this demo.";
+            return;
+          }
+
+          fileUploadStatus.textContent = "Reading file…";
+
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const dataUrl = reader.result; // data:image/png;base64,... or data:video/mp4;base64,...
+
+            try {
+              fileUploadStatus.textContent = "Uploading to Firestore…";
+
+              const user = auth.currentUser;
+
+              await addDoc(collection(db, "files"), {
+                name: file.name,
+                contentType: file.type,
+                sizeBytes: file.size,
+                dataUrl, // actual file content
+                uploadedAt: serverTimestamp(),
+                uploadedBy: user ? user.email : null,
+              });
+
+              fileUploadStatus.textContent = "Upload complete ✅";
+              fileInput.value = "";
+              await loadFiles();
+            } catch (err) {
+              console.error("Error uploading file:", err);
+              fileUploadStatus.textContent =
+                "Upload failed. Check console for details.";
+            }
+          };
+
+          reader.onerror = () => {
+            console.error("FileReader error:", reader.error);
+            fileUploadStatus.textContent =
+              "Could not read file. Please try again.";
+          };
+
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // ==========================
+      // Auth wiring
+      // ==========================
+
+      // Sign in with Google + log login in Firestore
       signInBtn.addEventListener("click", async () => {
         try {
           const result = await signInWithPopup(auth, provider);
           const user = result.user;
 
-          // Write login record to Firestore (Requirement 6)
+          // Requirement 6: write login record
           try {
             await addDoc(collection(db, "logins"), {
               uid: user.uid,
@@ -164,8 +323,8 @@
             console.error("Error logging login to Firestore:", logErr);
           }
 
-          // Refresh login history
           await loadLoginLog();
+          await loadFiles(); // also refresh files on fresh login
         } catch (err) {
           console.error("Sign-in error:", err);
           alert(err.message);
@@ -188,17 +347,22 @@
           userInfo.textContent = `Signed in as ${user.displayName} (${user.email})`;
           appWrapper.style.display = "block";
 
-          // Show login history when signed in
+          // Show login history + files when signed in
           await loadLoginLog();
+          fileSection.style.display = "block";
+          await loadFiles();
         } else {
           signInBtn.style.display = "inline-block";
           signOutBtn.style.display = "none";
           userInfo.textContent = "Not signed in";
           appWrapper.style.display = "none";
 
-          // Hide login history when signed out
+          // Hide login history + files when signed out
           loginLogSection.style.display = "none";
           loginList.innerHTML = "";
+          fileSection.style.display = "none";
+          fileList.innerHTML = "";
+          fileUploadStatus.textContent = "";
         }
       });
     </script>
